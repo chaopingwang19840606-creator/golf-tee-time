@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>开球出发安排</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1a5632;
+    --green-mid: #2d8a4e;
+    --green-light: #4caf50;
+    --green-pale: #e8f5e9;
+    --gold: #d4a843;
+    --gold-light: #f5e6c0;
+    --white: #ffffff;
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #eeeeee;
+    --gray-400: #bdbdbd;
+    --gray-600: #757575;
+    --gray-800: #424242;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: linear-gradient(160deg, var(--green-deep) 0%, #0d3320 100%);
+    min-height: 100vh;
+    color: var(--gray-800);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+    padding: 28px 20px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '⛳';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.06;
+    top: -20px;
+    right: -10px;
+  }
+  .header h1 {
+    color: var(--white);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    position: relative;
+  }
+  .header p {
+    color: var(--gold);
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+
+  .container {
+    padding: 16px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Day card */
+  .day-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+    animation: slideUp 0.4s ease-out both;
+  }
+  .day-card:nth-child(2) { animation-delay: 0.1s; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .day-label {
+    background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+    color: var(--white);
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .day-label .icon { font-size: 18px; }
+
+  .day-body { padding: 18px; }
+
+  /* Input row */
+  .input-group {
+    margin-bottom: 16px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+
+  .date-time-row {
+    display: flex;
+    gap: 10px;
+  }
+  .date-time-row .field {
+    flex: 1;
+  }
+
+  input[type="date"],
+  input[type="time"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Noto Sans SC', sans-serif;
+    color: var(--gray-800);
+    background: var(--gray-50);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+    background: var(--white);
+  }
+
+  /* Result display */
+  .results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .result-box {
+    background: var(--green-pale);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    border: 1px solid rgba(76,175,80,0.15);
+    transition: transform 0.2s;
+  }
+  .result-box.highlight {
+    background: linear-gradient(135deg, var(--gold-light), #fdf0d5);
+    border-color: rgba(212,168,67,0.3);
+  }
+  .result-box .label {
+    font-size: 11px;
+    color: var(--gray-600);
+    margin-bottom: 4px;
+    font-weight: 400;
+  }
+  .result-box .time-val {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green-deep);
+    letter-spacing: 1px;
+    min-height: 36px;
+    line-height: 36px;
+  }
+  .result-box.highlight .time-val {
+    color: #8b6914;
+  }
+  .result-box .weekday {
+    font-size: 11px;
+    color: var(--gray-600);
+    margin-top: 2px;
+  }
+
+  /* Settings */
+  .settings-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 18px;
+    margin-bottom: 16px;
+    animation: slideUp 0.4s ease-out 0.2s both;
+  }
+  .settings-title {
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .settings-row {
+    display: flex;
+    gap: 10px;
+  }
+  .setting-item {
+    flex: 1;
+    position: relative;
+  }
+  .setting-item label {
+    font-size: 11px;
+    color: var(--gray-400);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .setting-item input[type="number"] {
+    width: 100%;
+    padding: 10px 40px 10px 14px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 18px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 500;
+    color: var(--gray-800);
+    background: var(--gray-50);
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+  }
+  .setting-item input[type="number"]:focus {
+    outline: none;
+    border-color: var(--green-light);
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+  }
+  .setting-unit {
+    position: absolute;
+    right: 14px;
+    bottom: 12px;
+    font-size: 13px;
+    color: var(--gray-400);
+    pointer-events: none;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+  }
+
+  .formula-note {
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 8px;
+    animation: slideUp 0.4s ease-out 0.3s both;
+  }
+  .formula-note p {
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .formula-note strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>开球出发安排</h1>
+  <p>GOLF TEE TIME PLANNER</p>
+</div>
+
+<div class="container">
+
+  <div class="settings-card">
+    <div class="settings-title">⚙️ 参数设置</div>
+    <div class="settings-row">
+      <div class="setting-item">
+        <label>去球场车程</label>
+        <input type="number" id="travelMin" value="50" min="1" max="180" oninput="calcAll()">
+        <span class="setting-unit">分钟</span>
+      </div>
+      <div class="setting-item">
+        <label>提前到达</label>
+        <input type="number" id="earlyMin" value="25" min="0" max="120" oninput="calcAll()">
+        <span class="setting-unit">分钟</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saturday -->
+  <div class="day-card">
+    <div class="day-label"><span class="icon">🏌️</span> 周六 Saturday</div>
+    <div class="day-body">
+      <div class="input-group">
+        <label>选择日期和开球时间</label>
+        <div class="date-time-row">
+          <div class="field">
+            <input type="date" id="dateSat" onchange="calcAll()">
+          </div>
+          <div class="field">
+            <input type="time" id="teeSat" value="07:26" onchange="calcAll()">
+          </div>
+        </div>
+      </div>
+      <div class="results">
+        <div class="result-box">
+          <div class="label">到达球场</div>
+          <div class="time-val" id="arriveSat">--:--</div>
+          <div class="weekday" id="wdSat"></div>
+        </div>
+        <div class="result-box highlight">
+          <div class="label">🚗 出发时间</div>
+          <div class="time-val" id="departSat">--:--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sunday -->
+  <div class="day-card">
+    <div class="day-label"><span class="icon">🏌️‍♂️</span> 周日 Sunday</div>
+    <div class="day-body">
+      <div class="input-group">
+        <label>选择日期和开球时间</label>
+        <div class="date-time-row">
+          <div class="field">
+            <input type="date" id="dateSun" onchange="calcAll()">
+          </div>
+          <div class="field">
+            <input type="time" id="teeSun" value="07:26" onchange="calcAll()">
+          </div>
+        </div>
+      </div>
+      <div class="results">
+        <div class="result-box">
+          <div class="label">到达球场</div>
+          <div class="time-val" id="arriveSun">--:--</div>
+          <div class="weekday" id="wdSun"></div>
+        </div>
+        <div class="result-box highlight">
+          <div class="label">🚗 出发时间</div>
+          <div class="time-val" id="departSun">--:--</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-note">
+    <p><strong>计算规则：</strong><br>
+    到达时间 = 开球时间 − 提前到达，按5分钟取整<br>
+    出发时间 = 到达时间 − 车程时间，按5分钟取整<br>
+    <strong>取整规则：</strong>尾数 0/1/2→0　3/4→5　5/6/7→5　8/9→下一个0</p>
+  </div>
+
+</div>
+
+<div class="footer">在手机浏览器中打开即可使用</div>
+
+<script>
+  // Set default dates to this Saturday & Sunday
+  function getNextDay(dayOfWeek) {
+    const d = new Date();
+    const diff = (dayOfWeek - d.getDay() + 7) % 7;
+    d.setDate(d.getDate() + (diff === 0 ? 0 : diff));
+    return d.toISOString().split('T')[0];
+  }
+  // Saturday=6, Sunday=0
+  const today = new Date();
+  const todayDow = today.getDay();
+  // Find next Saturday
+  let satOff = (6 - todayDow + 7) % 7; if (satOff === 0 && todayDow === 6) satOff = 0;
+  const satDate = new Date(today); satDate.setDate(today.getDate() + satOff);
+  const sunDate = new Date(satDate); sunDate.setDate(satDate.getDate() + 1);
+
+  document.getElementById('dateSat').value = fmt(satDate);
+  document.getElementById('dateSun').value = fmt(sunDate);
+
+  function fmt(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function mround5(totalMinutes) {
+    // Round to nearest 5 using MROUND logic
+    // 0,1,2->0  3,4->5  5,6,7->5  8,9->10
+    return Math.round(totalMinutes / 5) * 5;
+  }
+
+  function minutesToHHMM(m) {
+    if (m < 0) m += 1440;
+    const hh = Math.floor(m / 60);
+    const mm = m % 60;
+    return String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+  }
+
+  function getWeekdayCN(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    const names = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+    return names[d.getDay()];
+  }
+
+  function calcOne(teeId, dateId, arriveId, departId, wdId) {
+    const teeVal = document.getElementById(teeId).value;
+    const dateVal = document.getElementById(dateId).value;
+    const travel = parseInt(document.getElementById('travelMin').value) || 50;
+    const early = parseInt(document.getElementById('earlyMin').value) || 25;
+
+    if (wdId) {
+      document.getElementById(wdId).textContent = getWeekdayCN(dateVal);
+    }
+
+    if (!teeVal) {
+      document.getElementById(arriveId).textContent = '--:--';
+      document.getElementById(departId).textContent = '--:--';
+      return;
+    }
+    const [h, m] = teeVal.split(':').map(Number);
+    const teeMin = h * 60 + m;
+
+    const arriveRaw = teeMin - early;
+    const arriveRounded = mround5(arriveRaw);
+
+    const departRaw = arriveRounded - travel;
+    const departRounded = mround5(departRaw);
+
+    document.getElementById(arriveId).textContent = minutesToHHMM(arriveRounded);
+    document.getElementById(departId).textContent = minutesToHHMM(departRounded);
+
+    // Animate
+    [arriveId, departId].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.transform = 'scale(1.1)';
+      setTimeout(() => el.style.transform = 'scale(1)', 200);
+    });
+  }
+
+  function calcAll() {
+    calcOne('teeSat', 'dateSat', 'arriveSat', 'departSat', 'wdSat');
+    calcOne('teeSun', 'dateSun', 'arriveSun', 'departSun', 'wdSun');
+  }
+
+  calcAll();
+</script>
+</body>
+</html>
