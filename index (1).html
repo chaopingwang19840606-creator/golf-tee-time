@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>开球出发安排</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'PingFang SC',sans-serif;background:linear-gradient(160deg,#1a5632,#0d3320);min-height:100vh;color:#424242;-webkit-tap-highlight-color:transparent}
+  .header{background:linear-gradient(135deg,#1a5632,#2d8a4e);padding:28px 20px 20px;text-align:center}
+  .header h1{color:#fff;font-size:22px;font-weight:700;letter-spacing:2px}
+  .header p{color:#d4a843;font-size:12px;margin-top:6px;letter-spacing:1px}
+  .container{padding:16px;max-width:480px;margin:0 auto}
+  .card{background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.12);margin-bottom:16px;overflow:hidden;position:relative}
+  .settings-toggle{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#424242;font-weight:500;user-select:none}
+  .settings-toggle .arrow{transition:transform .3s;color:#bdbdbd;font-size:12px}
+  .settings-toggle.open .arrow{transform:rotate(180deg)}
+  .settings-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .settings-body.open{max-height:200px}
+  .settings-inner{padding:0 18px 18px;display:flex;gap:10px}
+  .setting-item{flex:1;position:relative}
+  .setting-item label{font-size:11px;color:#bdbdbd;display:block;margin-bottom:6px}
+  .setting-item input{width:100%;padding:10px 40px 10px 14px;border:1.5px solid #eee;border-radius:10px;font-size:18px;font-weight:500;color:#424242;background:#fafafa;text-align:center;-webkit-appearance:none;-moz-appearance:textfield}
+  .setting-unit{position:absolute;right:14px;bottom:12px;font-size:13px;color:#bdbdbd;pointer-events:none}
+  .day-label{background:linear-gradient(135deg,#2d8a4e,#4caf50);color:#fff;padding:12px 18px;font-size:15px;font-weight:500;display:flex;justify-content:space-between;align-items:center}
+  .day-label .del{background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+  .day-body{padding:18px}
+  .field-label{font-size:13px;color:#757575;margin-bottom:8px;display:block}
+  .date-input{width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-size:16px;color:#424242;background:#fafafa;margin-bottom:14px;-webkit-appearance:none}
+  .time-row{display:flex;gap:6px;align-items:center;margin-bottom:16px}
+  .time-row select{flex:1;padding:12px 4px;border:1.5px solid #eee;border-radius:10px;font-size:20px;font-weight:500;color:#424242;background:#fafafa;text-align:center;text-align-last:center}
+  .time-sep{font-size:24px;font-weight:700;color:#757575}
+  .results{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .rbox{border-radius:12px;padding:14px;text-align:center}
+  .rbox-green{background:#e8f5e9;border:1px solid rgba(76,175,80,.15)}
+  .rbox-gold{background:linear-gradient(135deg,#f5e6c0,#fdf0d5);border:1px solid rgba(212,168,67,.3)}
+  .rbox .lab{font-size:11px;color:#757575;margin-bottom:4px}
+  .rbox .val{font-size:28px;font-weight:700;letter-spacing:1px;line-height:38px}
+  .rbox-green .val{color:#1a5632}
+  .rbox-gold .val{color:#8b6914}
+  .add-btn{width:100%;padding:14px;background:rgba(255,255,255,.1);border:1.5px dashed rgba(255,255,255,.3);border-radius:16px;color:#fff;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:16px;font-family:inherit}
+  .add-btn:active{background:rgba(255,255,255,.2)}
+</style>
+</head>
+<body>
+<div class="header"><h1>开球出发安排</h1><p>GOLF TEE TIME PLANNER</p></div>
+<div class="container">
+  <div class="card">
+    <div class="settings-toggle" id="settingsToggle">
+      <span>⚙️ 参数设置</span><span class="arrow">▼</span>
+    </div>
+    <div class="settings-body" id="settingsBody">
+      <div class="settings-inner">
+        <div class="setting-item"><label>去球场车程</label><input type="number" id="travelMin" value="50" min="1" max="180"><span class="setting-unit">分钟</span></div>
+        <div class="setting-item"><label>提前到达</label><input type="number" id="earlyMin" value="25" min="0" max="120"><span class="setting-unit">分钟</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dayList"></div>
+
+  <button class="add-btn" id="addBtn">＋ 新增日期</button>
+</div>
+
+<script>
+(function(){
+  var weekdays=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  function pad(n){return n<10?'0'+n:''+n;}
+  function r5(n){return Math.round(n/5)*5;}
+  function hm(n){if(n<0)n+=1440;return pad(Math.floor(n/60))+':'+pad(n%60);}
+  function fmtDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function getWd(s){if(!s)return '';var d=new Date(s+'T00:00:00');return weekdays[d.getDay()];}
+  function nextSat(){var d=new Date();var off=(6-d.getDay()+7)%7;d.setDate(d.getDate()+off);return d;}
+
+  var counter=0;
+  var hourOpts='<option value="5">05</option><option value="6">06</option><option value="7" selected>07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>';
+  var minOpts='<option value="0">00</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26" selected>26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option>';
+
+  function calc(id){
+    var tr=parseInt(document.getElementById('travelMin').value)||50;
+    var ea=parseInt(document.getElementById('earlyMin').value)||25;
+    var t=parseInt(document.getElementById('h'+id).value)*60+parseInt(document.getElementById('m'+id).value);
+    var a=r5(t-ea);var d=r5(a-tr);
+    document.getElementById('a'+id).textContent=hm(a);
+    document.getElementById('d'+id).textContent=hm(d);
+  }
+  function calcAll(){var els=document.querySelectorAll('[data-id]');for(var i=0;i<els.length;i++)calc(els[i].getAttribute('data-id'));}
+
+  function updateLabel(id){
+    var dv=document.getElementById('date'+id).value;
+    var wd=getWd(dv);
+    document.getElementById('lbl'+id).textContent=(dv?dv.replace(/-/g,'/'):'')+(wd?' '+wd:'');
+  }
+
+  function addDay(date){
+    counter++;var id=counter;
+    var card=document.createElement('div');
+    card.className='card';card.setAttribute('data-id',id);
+    card.innerHTML='<div class="day-label">🏌️ <span id="lbl'+id+'"></span>'+
+      (id>1?'<button class="del" onclick="removeDay('+id+')">×</button>':'<span></span>')+'</div>'+
+      '<div class="day-body">'+
+      '<span class="field-label">日期</span>'+
+      '<input type="date" class="date-input" id="date'+id+'" value="'+date+'">'+
+      '<span class="field-label">开球时间</span>'+
+      '<div class="time-row"><select id="h'+id+'">'+hourOpts+'</select><span class="time-sep">:</span><select id="m'+id+'">'+minOpts+'</select></div>'+
+      '<div class="results"><div class="rbox rbox-green"><div class="lab">到达球场</div><div class="val" id="a'+id+'">--:--</div></div>'+
+      '<div class="rbox rbox-gold"><div class="lab">🚗 出发时间</div><div class="val" id="d'+id+'">--:--</div></div></div></div>';
+    document.getElementById('dayList').appendChild(card);
+    document.getElementById('date'+id).addEventListener('change',function(){updateLabel(id);});
+    document.getElementById('date'+id).addEventListener('input',function(){updateLabel(id);});
+    document.getElementById('h'+id).addEventListener('change',function(){calc(id);});
+    document.getElementById('m'+id).addEventListener('change',function(){calc(id);});
+    updateLabel(id);calc(id);
+  }
+  window.removeDay=function(id){var c=document.querySelector('[data-id="'+id+'"]');if(c)c.remove();};
+
+  document.getElementById('settingsToggle').addEventListener('click',function(){
+    this.classList.toggle('open');
+    document.getElementById('settingsBody').classList.toggle('open');
+  });
+  document.getElementById('travelMin').addEventListener('input',calcAll);
+  document.getElementById('earlyMin').addEventListener('input',calcAll);
+  document.getElementById('addBtn').addEventListener('click',function(){
+    var last=document.querySelector('#dayList .card:last-child');
+    var base=nextSat();
+    if(last){var lid=last.getAttribute('data-id');var lv=document.getElementById('date'+lid).value;if(lv){base=new Date(lv+'T00:00:00');base.setDate(base.getDate()+1);}}
+    addDay(fmtDate(base));
+  });
+  addDay(fmtDate(nextSat()));
+})();
+</script>
+</body>
+</html>
