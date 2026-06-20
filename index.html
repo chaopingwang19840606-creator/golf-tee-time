@@ -226,7 +226,13 @@
     </div>
     <div class="card">
       <h2><span class="dot"></span>玩法说明</h2>
-      <p class="hint">一部手机传着玩，不用联网。选好玩家进入舞池，四种玩法随便切，输的人按系统抽到的惩罚喝 🍺 喝酒记录自动计入战绩榜，散场看谁是今晚MVP（最惨的那个）。</p>
+      <p class="hint">一部手机传着玩，不用联网。选好玩家进入舞池，四种玩法随便切，输的人按系统抽到的惩罚喝 🍺 喝酒记录自动计入战绩榜，散场看谁是今晚MVP（最惨的那个）。玩家与战绩会自动保存在本机，刷新不丢。</p>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>分享给酒友 📲</h2>
+      <p class="hint">在微信里点右上角 <b>···</b> 即可转发给好友或分享到朋友圈，对方点开链接就能一起玩，无需安装任何 App。</p>
+      <button class="btn ghost small" style="margin-top:12px" onclick="shareGame()">📤 复制链接 / 分享</button>
+      <p class="hint" id="shareTip" style="margin-top:8px;text-align:center;min-height:16px"></p>
     </div>
     <button class="btn" onclick="goModes()">🎧 进入舞池</button>
     <p class="footer-note">小酌怡情 · 不许劝酒 · 喝酒不开车</p>
@@ -327,6 +333,7 @@
       <h2><span class="dot"></span>今晚战绩榜 🏆</h2>
       <div id="boardList"></div>
       <p class="hint" style="margin-top:10px;text-align:center">杯数 = 被罚次数（豁免不计）</p>
+      <button class="btn ghost small" style="margin-top:12px" onclick="clearBoard()">🗑️ 清空战绩</button>
     </div>
     <div class="back"><button class="btn ghost small" onclick="show(lastScreen)">← 返回</button></div>
   </section>
@@ -432,6 +439,42 @@ function show(id){
 function vib(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
+/* ================== 本机存档（刷新不丢） ================== */
+const STORE_KEY = 'disco-bar-players';
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(players)); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const arr = JSON.parse(raw);
+    if(Array.isArray(arr)){
+      players = arr.filter(p=>p&&typeof p.name==='string')
+                   .map(p=>({name:p.name, cups:Number(p.cups)||0}));
+    }
+  }catch(e){}
+}
+
+/* ================== 分享（微信友好） ================== */
+function showShareTip(msg){
+  const el = $('shareTip'); if(el) el.textContent = msg;
+}
+async function shareGame(){
+  const url = location.href.split('#')[0];
+  const data = {title:'DISCO酒局 · 派对喝酒游戏', text:'来 DISCO酒局 一起玩！🍻', url};
+  if(navigator.share){
+    try{ await navigator.share(data); return; }
+    catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    showShareTip('链接已复制 ✅ 粘贴发给好友，或点微信右上角 ··· 转发');
+  }catch(e){
+    showShareTip('在微信里点右上角 ··· 转发给好友 / 分享到朋友圈');
+  }
+}
+
 function showResult(who, opts){
   opts = opts||{};
   const pen = opts.noPenalty ? null : rollPenalty();
@@ -442,6 +485,7 @@ function showResult(who, opts){
   if(pen && pen.cups>0 || opts.forceCup){
     const p = players.find(p=>p.name===who);
     if(p) p.cups++;
+    saveState();
   }
   $('overlay').classList.add('show');
   $('resultBox').classList.add('strobe');
@@ -463,9 +507,10 @@ function addPlayer(){
   if(players.some(p=>p.name===v)){ alert('名字重复了，加个序号吧'); return; }
   players.push({name:v, cups:0});
   $('nameInput').value='';
+  saveState();
   renderChips();
 }
-function removePlayer(i){ players.splice(i,1); renderChips(); }
+function removePlayer(i){ players.splice(i,1); saveState(); renderChips(); }
 function renderChips(){
   $('chips').innerHTML = players.length
     ? players.map((p,i)=>`<span class="chip"><i>${p.name}</i><span class="x" onclick="removePlayer(${i})">×</span></span>`).join('')
@@ -624,6 +669,7 @@ function rollDice(){
             showResult(losers[0],{sub:`掷出最小点数 ${min}，技不如人甘拜下风`});
           } else {
             losers.forEach(n=>{ const p=players.find(p=>p.name===n); if(p)p.cups++; });
+            saveState();
             $('resEmoji').textContent='🍻';
             $('resWho').textContent=losers.join('、');
             $('resPenalty').textContent=`并列最小点 ${min}，一起喝！`;
@@ -648,7 +694,15 @@ function showBoard(){
     : '<p class="hint">还没人喝酒，今晚的故事才刚开始…</p>';
   show('scr-board');
 }
+function clearBoard(){
+  if(!players.length){ alert('还没有玩家'); return; }
+  if(!confirm('确定清空所有人的喝酒杯数？（玩家保留）')) return;
+  players.forEach(p=>p.cups=0);
+  saveState();
+  showBoard();
+}
 
+loadState();
 renderQuick();
 renderChips();
 
