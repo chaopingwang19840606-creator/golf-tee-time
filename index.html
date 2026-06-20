@@ -2,118 +2,712 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>开球出发安排</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DISCO酒局 · 派对喝酒游戏</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,'PingFang SC',sans-serif;background:linear-gradient(160deg,#1a5632,#0d3320);min-height:100vh;color:#424242;-webkit-tap-highlight-color:transparent}
-  .header{background:linear-gradient(135deg,#1a5632,#2d8a4e);padding:28px 20px 20px;text-align:center}
-  .header h1{color:#fff;font-size:22px;font-weight:700;letter-spacing:2px}
-  .header p{color:#d4a843;font-size:12px;margin-top:6px;letter-spacing:1px}
-  .container{padding:16px;max-width:480px;margin:0 auto}
-  .card{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.15);margin-bottom:16px;overflow:hidden}
-  .settings-toggle{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#424242;font-weight:500;user-select:none}
-  .settings-toggle .arrow{transition:transform .3s;color:#bdbdbd;font-size:12px}
-  .settings-toggle.open .arrow{transform:rotate(180deg)}
-  .settings-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
-  .settings-body.open{max-height:200px}
-  .settings-inner{padding:0 18px 18px;display:flex;gap:10px}
-  .setting-item{flex:1;position:relative}
-  .setting-item label{font-size:11px;color:#bdbdbd;display:block;margin-bottom:6px}
-  .setting-item input{width:100%;padding:10px 40px 10px 14px;border:1.5px solid #eee;border-radius:8px;font-size:16px;color:#424242;background:#fafafa;text-align:center;-webkit-appearance:none;-moz-appearance:textfield}
-  .setting-unit{position:absolute;right:14px;bottom:12px;font-size:13px;color:#bdbdbd;pointer-events:none}
-  .day-label{background:#2d8a4e;color:#fff;padding:10px 14px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
-  .day-label img{width:32px;height:32px;border-radius:50%;object-fit:cover;display:block;border:1.5px solid rgba(255,255,255,.4)}
-  .day-label .del{background:rgba(255,255,255,.25);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1}
-  .day-body{padding:16px}
-  .row{display:flex;align-items:center;margin-bottom:12px;gap:10px}
-  .row .label{font-size:17px;color:#424242;font-weight:500;white-space:nowrap;width:4em;flex-shrink:0}
-  .row .date-wrap{flex:1;display:flex;align-items:center;gap:10px}
-  .row input[type="date"]{flex:1;padding:10px 12px;border:1.5px solid #eee;border-radius:8px;font-size:15px;color:#424242;background:#fafafa;text-align:center;-webkit-appearance:none;min-width:0}
-  .wd{font-size:16px;color:#1a5632;font-weight:700;flex-shrink:0}
-  .time-wrap{flex:1;display:flex;align-items:center;gap:8px}
-  .time-wrap select{flex:1;padding:10px 4px;border:1.5px solid #eee;border-radius:8px;font-size:18px;font-weight:500;color:#424242;background:#fafafa;text-align:center;text-align-last:center;min-width:0}
-  .time-sep{font-size:20px;font-weight:700;color:#757575}
-  .results{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;margin-left:calc(4em + 10px)}
-  .rbox{border-radius:10px;padding:12px;text-align:center}
-  .rbox-gold{background:#fdf0d5;border:1px solid rgba(212,168,67,.35)}
-  .rbox-blue{background:#e7f0f9;border:1px solid rgba(30,100,180,.2)}
-  .rbox .lab{font-size:14px;color:#424242;margin-bottom:4px;font-weight:500}
-  .rbox .val{font-size:30px;font-weight:700;letter-spacing:1px;line-height:38px}
-  .rbox-gold .val{color:#8b6914}
-  .rbox-blue .val{color:#1e5aa8}
-  .add-btn{width:100%;padding:14px;background:rgba(255,255,255,.1);border:1.5px dashed rgba(255,255,255,.3);border-radius:12px;color:#fff;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:16px;font-family:inherit}
-  .add-btn:active{background:rgba(255,255,255,.2)}
+  :root{
+    --bg:#0c0813;
+    --bg2:#171024;
+    --panel:#1d1430;
+    --panel2:#251a3d;
+    --magenta:#ff2e88;
+    --cyan:#23e5ff;
+    --acid:#f8e71c;
+    --violet:#8b5cf6;
+    --ink:#f5f0ff;
+    --dim:#9d8fc0;
+    --danger:#ff4d4d;
+    --radius:18px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    overflow-x:hidden;
+    min-height:100dvh;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(139,92,246,.25), transparent),
+      radial-gradient(ellipse 60% 30% at 90% 100%, rgba(255,46,136,.12), transparent);
+    user-select:none;-webkit-user-select:none;
+  }
+  .app{max-width:480px;margin:0 auto;padding:18px 16px 90px;min-height:100dvh;position:relative}
+
+  /* ===== 顶部 ===== */
+  .brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .logo{font-size:22px;font-weight:900;letter-spacing:2px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--acid));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .logo small{font-size:11px;letter-spacing:4px;display:block;color:var(--dim);-webkit-text-fill-color:var(--dim)}
+  .score-btn{background:var(--panel);border:1px solid rgba(255,255,255,.08);color:var(--ink);
+    padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600}
+
+  /* ===== 通用 ===== */
+  .screen{display:none;animation:fadeIn .25s ease}
+  .screen.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card{background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+  h2{font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--magenta);box-shadow:0 0 10px var(--magenta)}
+  .hint{font-size:12px;color:var(--dim);line-height:1.7}
+  .btn{display:block;width:100%;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;
+    color:#0c0813;background:linear-gradient(90deg,var(--cyan),var(--magenta));cursor:pointer;transition:transform .1s}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid rgba(255,255,255,.12);font-weight:600}
+  .btn.small{padding:10px;font-size:14px;border-radius:10px}
+  .btn:disabled{opacity:.4}
+  .row{display:flex;gap:10px}
+  .row .btn{flex:1}
+  .back{position:fixed;left:0;right:0;bottom:0;max-width:480px;margin:0 auto;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(transparent,var(--bg) 40%);z-index:50}
+
+  /* ===== 玩家 ===== */
+  .player-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:38px}
+  .chip{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid rgba(255,255,255,.12);
+    padding:8px 12px;border-radius:99px;font-size:14px;font-weight:600}
+  .chip .x{color:var(--dim);font-size:16px;padding:0 2px;cursor:pointer}
+  .chip i{font-style:normal}
+  .add-row{display:flex;gap:8px}
+  .add-row input{flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,.12);border-radius:12px;
+    padding:13px 14px;color:var(--ink);font-size:15px;outline:none}
+  .add-row input:focus{border-color:var(--cyan)}
+  .add-row button{background:var(--panel2);border:1px solid rgba(255,255,255,.15);color:var(--cyan);
+    border-radius:12px;padding:0 18px;font-size:22px;font-weight:700}
+  .quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .quick span{font-size:12px;color:var(--dim);background:rgba(255,255,255,.05);padding:6px 10px;border-radius:99px;cursor:pointer}
+
+  /* ===== 模式选择 ===== */
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mode{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);
+    padding:18px 14px;text-align:center;cursor:pointer;transition:transform .1s;position:relative;overflow:hidden}
+  .mode:active{transform:scale(.96)}
+  .mode .emoji{font-size:34px;display:block;margin-bottom:8px}
+  .mode b{font-size:15px;display:block;margin-bottom:4px}
+  .mode small{font-size:11px;color:var(--dim);line-height:1.5;display:block}
+  .mode::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(35,229,255,.12),transparent 70%);pointer-events:none}
+
+  /* ===== 唱盘 ===== */
+  .deck-wrap{position:relative;width:300px;height:300px;margin:10px auto 6px}
+  .needle{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:5;
+    width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;
+    border-top:30px solid var(--acid);filter:drop-shadow(0 0 8px rgba(248,231,28,.8))}
+  .vinyl{position:absolute;inset:0;border-radius:50%;
+    box-shadow:0 0 0 8px #0a0710,0 0 0 10px rgba(255,255,255,.08),0 0 50px rgba(255,46,136,.25);
+    transition:transform 4.2s cubic-bezier(.12,.8,.16,1)}
+  .vinyl .grooves{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    background:repeating-radial-gradient(circle at center,transparent 0 7px,rgba(0,0,0,.22) 7px 8px)}
+  .vinyl .label-center{position:absolute;left:50%;top:50%;width:84px;height:84px;transform:translate(-50%,-50%);
+    border-radius:50%;background:radial-gradient(circle,#1d1430 30%,#0c0813);border:2px solid rgba(255,255,255,.15);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:3}
+  .vinyl .label-center b{font-size:13px;letter-spacing:1px;color:var(--acid)}
+  .vinyl .label-center small{font-size:9px;color:var(--dim);letter-spacing:2px}
+  .seg-name{position:absolute;left:50%;top:50%;font-size:13px;font-weight:800;color:#0c0813;
+    transform-origin:0 0;white-space:nowrap;z-index:2;text-shadow:0 0 4px rgba(255,255,255,.35)}
+  .spin-status{text-align:center;font-size:14px;color:var(--dim);min-height:22px;margin-bottom:10px}
+
+  /* ===== 结果弹层 ===== */
+  .overlay{position:fixed;inset:0;background:rgba(5,3,10,.82);backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+  .overlay.show{display:flex}
+  .result{background:var(--panel);border:1px solid rgba(255,255,255,.12);border-radius:24px;
+    padding:30px 24px;text-align:center;width:100%;max-width:340px;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+  .result .big{font-size:46px;margin-bottom:8px}
+  .result .who{font-size:26px;font-weight:900;color:var(--magenta);text-shadow:0 0 18px rgba(255,46,136,.6);margin-bottom:6px}
+  .result .penalty{font-size:18px;font-weight:700;color:var(--acid);margin-bottom:18px}
+  .result .sub{font-size:13px;color:var(--dim);margin-bottom:18px;line-height:1.7}
+
+  /* ===== 数字炸弹 ===== */
+  .bomb-range{text-align:center;font-size:34px;font-weight:900;letter-spacing:2px;margin:14px 0;
+    color:var(--cyan);text-shadow:0 0 20px rgba(35,229,255,.5)}
+  .bomb-turn{text-align:center;font-size:15px;margin-bottom:14px}
+  .bomb-turn b{color:var(--acid)}
+  .bomb-input{display:flex;gap:10px;margin-bottom:10px}
+  .bomb-input input{flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,.15);border-radius:12px;
+    padding:14px;color:var(--ink);font-size:20px;text-align:center;outline:none;font-weight:700}
+  .bomb-log{font-size:12px;color:var(--dim);text-align:center;min-height:18px}
+
+  /* ===== 真心话大冒险 ===== */
+  .tod-player{text-align:center;font-size:15px;margin-bottom:14px}
+  .tod-player b{color:var(--acid);font-size:20px}
+  .tod-card{background:linear-gradient(145deg,var(--panel2),#1a1030);border:1px solid rgba(255,255,255,.12);
+    border-radius:20px;padding:30px 20px;text-align:center;min-height:150px;display:flex;align-items:center;
+    justify-content:center;font-size:18px;font-weight:700;line-height:1.7;margin-bottom:14px;
+    box-shadow:inset 0 0 40px rgba(139,92,246,.15)}
+  .tod-tag{display:inline-block;font-size:12px;padding:4px 12px;border-radius:99px;margin-bottom:12px;font-weight:700}
+  .tod-tag.truth{background:rgba(35,229,255,.15);color:var(--cyan)}
+  .tod-tag.dare{background:rgba(255,46,136,.18);color:var(--magenta)}
+
+  /* ===== 骰子 ===== */
+  .dice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .die-slot{background:var(--panel2);border:1px solid rgba(255,255,255,.1);border-radius:14px;
+    padding:12px;text-align:center}
+  .die-slot .nm{font-size:13px;color:var(--dim);margin-bottom:6px;font-weight:600}
+  .die-slot .val{font-size:34px;font-weight:900;min-height:44px;line-height:44px}
+  .die-slot.lose{border-color:var(--danger);box-shadow:0 0 14px rgba(255,77,77,.3)}
+  .die-slot.lose .val{color:var(--danger)}
+  .die-slot.cur{border-color:var(--acid)}
+
+  /* ===== 排行榜 ===== */
+  .board-row{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.06)}
+  .board-row:last-child{border:none}
+  .board-row .rank{width:28px;font-weight:900;color:var(--dim);font-size:15px}
+  .board-row .rank.top{color:var(--acid)}
+  .board-row .nm{flex:1;font-weight:700;font-size:15px}
+  .board-row .cups{font-size:14px;color:var(--magenta);font-weight:800}
+
+  .strobe{animation:strobe .12s linear 8}
+  @keyframes strobe{50%{filter:brightness(2) hue-rotate(40deg)}}
+  .footer-note{text-align:center;font-size:11px;color:#5e5380;margin-top:18px;letter-spacing:1px}
+
+  /* ===== 角落固定水印（全程显示）===== */
+  .watermark{position:fixed;right:14px;bottom:78px;z-index:40;pointer-events:none;
+    font-size:11px;font-weight:800;letter-spacing:1px;opacity:.45;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    display:flex;align-items:center;gap:5px;text-shadow:0 0 8px rgba(255,46,136,.2)}
+  .watermark::before{content:"🎧"; -webkit-text-fill-color:initial;font-size:13px}
+
+  /* ===== 开屏动画 ===== */
+  .splash{position:fixed;inset:0;z-index:9999;background:var(--bg);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    background-image:radial-gradient(ellipse 70% 50% at 50% 50%, rgba(139,92,246,.3), transparent);
+    animation:splashOut .6s ease 2.4s forwards}
+  @keyframes splashOut{to{opacity:0;visibility:hidden}}
+  .splash .disc{width:130px;height:130px;border-radius:50%;margin-bottom:24px;position:relative;
+    background:conic-gradient(from 0deg,#23e5ff,#ff2e88,#f8e71c,#8b5cf6,#23e5ff);
+    box-shadow:0 0 0 8px #0a0710,0 0 60px rgba(255,46,136,.5);
+    animation:discSpin 1s linear infinite}
+  @keyframes discSpin{to{transform:rotate(360deg)}}
+  .splash .disc::after{content:"";position:absolute;left:50%;top:50%;width:42px;height:42px;
+    transform:translate(-50%,-50%);border-radius:50%;background:var(--bg);border:2px solid rgba(255,255,255,.2)}
+  .splash .present{font-size:13px;letter-spacing:4px;color:var(--dim);margin-bottom:6px;
+    animation:slideUp .5s ease .3s both}
+  .splash .by{font-size:30px;font-weight:900;letter-spacing:2px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--acid));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    animation:slideUp .5s ease .5s both}
+  .splash .tag{font-size:11px;letter-spacing:5px;color:#5e5380;margin-top:10px;
+    animation:slideUp .5s ease .7s both}
+  @media (prefers-reduced-motion:reduce){
+    .splash{animation:splashOut .4s ease 1.6s forwards}
+    .splash .disc{animation:none}
+  }
 </style>
 </head>
 <body>
-<div class="header"><h1>开球出发安排</h1><p>GOLF TEE TIME PLANNER</p></div>
-<div class="container">
-  <div class="card">
-    <div class="settings-toggle" id="settingsToggle"><span>⚙️ 参数设置</span><span class="arrow">▼</span></div>
-    <div class="settings-body" id="settingsBody">
-      <div class="settings-inner">
-        <div class="setting-item"><label>去球场车程</label><input type="number" id="travelMin" value="50" min="1" max="180"><span class="setting-unit">分钟</span></div>
-        <div class="setting-item"><label>提前到达</label><input type="number" id="earlyMin" value="25" min="0" max="120"><span class="setting-unit">分钟</span></div>
+
+<!-- ============ 开屏动画 ============ -->
+<div class="splash" id="splash">
+  <div class="disc"></div>
+  <div class="present">P R E S E N T S</div>
+  <div class="by">Disco大叔</div>
+  <div class="tag">D R I N K · P A R T Y · R E P E A T</div>
+</div>
+
+<div class="app">
+
+  <div class="brand">
+    <div class="logo">DISCO酒局<small>DRINK · PARTY · REPEAT</small></div>
+    <button class="score-btn" onclick="showBoard()">🍻 战绩</button>
+  </div>
+
+  <!-- ============ 首页：玩家设置 ============ -->
+  <section class="screen active" id="scr-home">
+    <div class="card">
+      <h2><span class="dot"></span>今晚都有谁？（2–12人）</h2>
+      <div class="player-chips" id="chips"></div>
+      <div class="add-row">
+        <input id="nameInput" type="text" maxlength="8" placeholder="输入名字 / 外号" enterkeyhint="done">
+        <button onclick="addPlayer()">＋</button>
+      </div>
+      <div class="quick" id="quickNames"></div>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>玩法说明</h2>
+      <p class="hint">一部手机传着玩，不用联网。选好玩家进入舞池，四种玩法随便切，输的人按系统抽到的惩罚喝 🍺 喝酒记录自动计入战绩榜，散场看谁是今晚MVP（最惨的那个）。玩家与战绩会自动保存在本机，刷新不丢。</p>
+    </div>
+    <div class="card">
+      <h2><span class="dot"></span>分享给酒友 📲</h2>
+      <p class="hint">在微信里点右上角 <b>···</b> 即可转发给好友或分享到朋友圈，对方点开链接就能一起玩，无需安装任何 App。</p>
+      <button class="btn ghost small" style="margin-top:12px" onclick="shareGame()">📤 复制链接 / 分享</button>
+      <p class="hint" id="shareTip" style="margin-top:8px;text-align:center;min-height:16px"></p>
+    </div>
+    <button class="btn" onclick="goModes()">🎧 进入舞池</button>
+    <p class="footer-note">小酌怡情 · 不许劝酒 · 喝酒不开车</p>
+  </section>
+
+  <!-- ============ 模式选择 ============ -->
+  <section class="screen" id="scr-modes">
+    <div class="modes">
+      <div class="mode" onclick="goSpin()">
+        <span class="emoji">💿</span><b>命运唱盘</b>
+        <small>打碟转盘<br>指针停谁谁喝</small>
+      </div>
+      <div class="mode" onclick="goBomb()">
+        <span class="emoji">💣</span><b>数字炸弹</b>
+        <small>1–100猜数字<br>踩雷的喝</small>
+      </div>
+      <div class="mode" onclick="goTod()">
+        <span class="emoji">🃏</span><b>真心话大冒险</b>
+        <small>抽卡执行<br>怂了就喝</small>
+      </div>
+      <div class="mode" onclick="goDice()">
+        <span class="emoji">🎲</span><b>骰子对决</b>
+        <small>轮流掷骰<br>点数最小的喝</small>
       </div>
     </div>
+    <div class="card" style="margin-top:14px">
+      <p class="hint">💡 惩罚力度由系统随机抽取：抿一口 / 半杯 / 干了 / 找人陪喝 / 幸运豁免。愿酒神保佑你。</p>
+    </div>
+    <div class="back"><button class="btn ghost small" onclick="show('scr-home')">← 返回玩家设置</button></div>
+  </section>
+
+  <!-- ============ 命运唱盘 ============ -->
+  <section class="screen" id="scr-spin">
+    <div class="card">
+      <h2><span class="dot"></span>命运唱盘 💿</h2>
+      <div class="deck-wrap">
+        <div class="needle"></div>
+        <div class="vinyl" id="vinyl">
+          <div class="grooves"></div>
+          <div class="label-center"><b>404 BPM</b><small>SIDE A</small></div>
+        </div>
+      </div>
+      <p class="spin-status" id="spinStatus">点击下方按钮，唱针落下定生死</p>
+      <button class="btn" id="spinBtn" onclick="spinDeck()">🔊 DROP THE BEAT</button>
+    </div>
+    <div class="back"><button class="btn ghost small" onclick="show('scr-modes')">← 换个玩法</button></div>
+  </section>
+
+  <!-- ============ 数字炸弹 ============ -->
+  <section class="screen" id="scr-bomb">
+    <div class="card">
+      <h2><span class="dot"></span>数字炸弹 💣</h2>
+      <div class="bomb-range" id="bombRange">1 — 100</div>
+      <div class="bomb-turn">轮到 <b id="bombWho">—</b> 报数</div>
+      <div class="bomb-input">
+        <input id="bombGuess" type="number" inputmode="numeric" placeholder="报一个数">
+        <button class="btn" style="width:auto;padding:0 22px" onclick="guessBomb()">报！</button>
+      </div>
+      <p class="bomb-log" id="bombLog">炸弹已埋好，区间内随便报，踩中就喝 💥</p>
+      <button class="btn ghost small" style="margin-top:12px" onclick="startBomb()">🔄 重新埋雷</button>
+    </div>
+    <div class="back"><button class="btn ghost small" onclick="show('scr-modes')">← 换个玩法</button></div>
+  </section>
+
+  <!-- ============ 真心话大冒险 ============ -->
+  <section class="screen" id="scr-tod">
+    <div class="card">
+      <h2><span class="dot"></span>真心话大冒险 🃏</h2>
+      <div class="tod-player">本轮抽中：<b id="todWho">—</b></div>
+      <div style="text-align:center"><span class="tod-tag truth" id="todTag" style="display:none"></span></div>
+      <div class="tod-card" id="todCard">选「真心话」还是「大冒险」？<br>不敢的直接认罚 🍺</div>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn ghost" onclick="drawTod('truth')">💬 真心话</button>
+        <button class="btn ghost" onclick="drawTod('dare')">🔥 大冒险</button>
+      </div>
+      <div class="row">
+        <button class="btn small" onclick="todDone()">✅ 完成了，下一位</button>
+        <button class="btn small" style="background:linear-gradient(90deg,var(--danger),var(--magenta));color:#fff" onclick="todChicken()">🐔 怂了，认罚</button>
+      </div>
+    </div>
+    <div class="back"><button class="btn ghost small" onclick="show('scr-modes')">← 换个玩法</button></div>
+  </section>
+
+  <!-- ============ 骰子对决 ============ -->
+  <section class="screen" id="scr-dice">
+    <div class="card">
+      <h2><span class="dot"></span>骰子对决 🎲</h2>
+      <div class="dice-grid" id="diceGrid"></div>
+      <button class="btn" id="diceBtn" onclick="rollDice()">🎲 掷骰子</button>
+      <button class="btn ghost small" style="margin-top:10px" onclick="startDice()">🔄 新一轮</button>
+    </div>
+    <div class="back"><button class="btn ghost small" onclick="show('scr-modes')">← 换个玩法</button></div>
+  </section>
+
+  <!-- ============ 战绩榜 ============ -->
+  <section class="screen" id="scr-board">
+    <div class="card">
+      <h2><span class="dot"></span>今晚战绩榜 🏆</h2>
+      <div id="boardList"></div>
+      <p class="hint" style="margin-top:10px;text-align:center">杯数 = 被罚次数（豁免不计）</p>
+      <button class="btn ghost small" style="margin-top:12px" onclick="clearBoard()">🗑️ 清空战绩</button>
+    </div>
+    <div class="back"><button class="btn ghost small" onclick="show(lastScreen)">← 返回</button></div>
+  </section>
+
+</div>
+
+<!-- ============ 全程固定水印 ============ -->
+<div class="watermark">Disco大叔 出品</div>
+
+<!-- ============ 结果弹层 ============ -->
+<div class="overlay" id="overlay">
+  <div class="result" id="resultBox">
+    <div class="big" id="resEmoji">🍺</div>
+    <div class="who" id="resWho"></div>
+    <div class="penalty" id="resPenalty"></div>
+    <div class="sub" id="resSub"></div>
+    <button class="btn" onclick="closeResult()">收到，继续！</button>
   </div>
-  <div id="dayList"></div>
-  <button class="add-btn" id="addBtn">＋ 新增日期</button>
 </div>
 
 <script>
-(function(){
-  var weekdays=['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
-  function pad(n){return n<10?'0'+n:''+n;}
-  function r5(n){return Math.round(n/5)*5;}
-  function hm(n){if(n<0)n+=1440;return Math.floor(n/60)+':'+pad(n%60);}
-  function fmtDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-  function getWd(s){if(!s)return '';var d=new Date(s+'T00:00:00');return weekdays[d.getDay()];}
-  function nextSat(){var d=new Date();var off=(6-d.getDay()+7)%7;d.setDate(d.getDate()+off);return d;}
-  var counter=0;
-  var hourOpts='<option value="5">5</option><option value="6">6</option><option value="7" selected>7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>';
-  var minOpts='<option value="0">00</option><option value="1">01</option><option value="2">02</option><option value="3">03</option><option value="4">04</option><option value="5">05</option><option value="6">06</option><option value="7">07</option><option value="8">08</option><option value="9">09</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26" selected>26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option><option value="32">32</option><option value="33">33</option><option value="34">34</option><option value="35">35</option><option value="36">36</option><option value="37">37</option><option value="38">38</option><option value="39">39</option><option value="40">40</option><option value="41">41</option><option value="42">42</option><option value="43">43</option><option value="44">44</option><option value="45">45</option><option value="46">46</option><option value="47">47</option><option value="48">48</option><option value="49">49</option><option value="50">50</option><option value="51">51</option><option value="52">52</option><option value="53">53</option><option value="54">54</option><option value="55">55</option><option value="56">56</option><option value="57">57</option><option value="58">58</option><option value="59">59</option>';
-  function calc(id){
-    var tr=parseInt(document.getElementById('travelMin').value)||50;
-    var ea=parseInt(document.getElementById('earlyMin').value)||25;
-    var t=parseInt(document.getElementById('h'+id).value)*60+parseInt(document.getElementById('m'+id).value);
-    var a=r5(t-ea);var d=r5(a-tr);
-    document.getElementById('a'+id).textContent=hm(a);
-    document.getElementById('d'+id).textContent=hm(d);
+/* ================== 状态 ================== */
+let players = [];           // {name, cups}
+let lastScreen = 'scr-home';
+const SEG_COLORS = ['#23e5ff','#ff2e88','#f8e71c','#8b5cf6','#3ddc84','#ff9f43','#ff6b9d','#5ee7df','#f6d365','#c084fc','#7ee787','#ffb86b'];
+
+const PENALTIES = [
+  {t:'抿一口 🍺', w:3, cups:1},
+  {t:'喝半杯 🍻', w:3, cups:1},
+  {t:'干了！🔥', w:2, cups:1},
+  {t:'指定一人陪你喝 👯', w:1, cups:1},
+  {t:'幸运豁免 🍀 这轮不用喝', w:1, cups:0},
+];
+function rollPenalty(){
+  const total = PENALTIES.reduce((s,p)=>s+p.w,0);
+  let r = Math.random()*total;
+  for(const p of PENALTIES){ if((r-=p.w)<0) return p; }
+  return PENALTIES[0];
+}
+
+const TRUTHS = [
+  '手机里最近一条让你不好意思的聊天记录，念出来（可打码人名）',
+  '你单次为兴趣爱好花过最多的一笔钱是多少？买了什么？',
+  '在座的人里，你第一印象最差的是谁？现在改观了吗？',
+  '说一件你至今没告诉过爸妈的事',
+  '你做过最社死的一件事是什么？',
+  'KTV里你最不敢点但又最想唱的歌是哪首？现场清唱两句',
+  '你手机相册里最舍不得删的一张照片是什么内容？',
+  '如果明天彩票中500万，你第一件事做什么？会辞职吗？',
+  '你暗恋过最久的一个人，暗恋了多久？',
+  '工作中你假装会但其实不会的一项技能是什么？',
+  '在座的人中你最想交换一天人生的是谁？为什么？',
+  '你最近一次撒谎是什么时候？撒的什么谎？',
+  '你给自己的颜值打几分？给左边的人打几分？',
+  '说出一个你删了又下回来超过3次的App',
+  '你最近一次哭是因为什么？',
+  '如果必须把在座一个人的微信删了，你删谁？',
+  '你网购过最后悔的东西是什么？',
+  '说一个你的奇怪癖好，越奇怪越好',
+  '你最长多久没洗头出过门？',
+  '初恋是几岁？怎么开始的怎么结束的，一句话讲完',
+  '你偷偷羡慕在座哪个人的什么？',
+  '手机屏幕使用时间最长的App是什么？当场打开给大家看',
+  '你说过最言不由衷的一句客套话是什么？',
+  '如果现在让你给前任发一条消息，你会发什么？',
+];
+const DARES = [
+  '学一段抖音最火的舞，跳15秒',
+  '用最深情的语气对左边的人念一句土味情话',
+  '模仿在座任意一个人的标志性动作或口头禅，让大家猜',
+  '当场做10个深蹲，边做边喊「我最棒」',
+  '让右边的人在你手机里随便发一条朋友圈（保留1分钟可删）',
+  '用唱歌的方式说出你明天要干嘛',
+  '保持微笑直视对面的人30秒，先笑场的喝',
+  '给通讯录第8个联系人发「在吗？我跟你说个事」',
+  '学三种动物叫，每种3秒',
+  '用方言播报一段今日新闻',
+  '让在座的人给你摆个姿势拍照，设为微信头像保留到明天',
+  '原地转10圈然后走直线，走歪了加罚一杯',
+  '把你的微信运动步数念出来，最后一名喝',
+  '用屁股写出自己的名字',
+  '接下来三轮说话必须带「亲爱的」开头',
+  '即兴打一段30秒的「嘴碟」（beatbox随意发挥）',
+  '让左边的人解锁你的手机看10秒，随便看',
+  '抱拳对全场说「各位大哥大姐，小弟先干为敬」然后喝一小口',
+  '闭眼让大家重新排座位，然后猜你左右是谁，猜错喝',
+  '用慢动作表演「开香槟庆祝」全过程',
+  '接下来一轮你说的每句话结尾必须加「喵」',
+  '现场表演一个魔术，表演不出来就喝',
+  '和你对面的人十指相扣对视10秒',
+  '模仿夜店DJ打碟的样子并喊一句「Put your hands up!」',
+];
+
+/* ================== 通用 ================== */
+function $(id){return document.getElementById(id)}
+function show(id){
+  const cur = document.querySelector('.screen.active');
+  if(cur && cur.id !== 'scr-board') lastScreen = cur.id;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function vib(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ================== 本机存档（刷新不丢） ================== */
+const STORE_KEY = 'disco-bar-players';
+function saveState(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(players)); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const arr = JSON.parse(raw);
+    if(Array.isArray(arr)){
+      players = arr.filter(p=>p&&typeof p.name==='string')
+                   .map(p=>({name:p.name, cups:Number(p.cups)||0}));
+    }
+  }catch(e){}
+}
+
+/* ================== 分享（微信友好） ================== */
+function showShareTip(msg){
+  const el = $('shareTip'); if(el) el.textContent = msg;
+}
+async function shareGame(){
+  const url = location.href.split('#')[0];
+  const data = {title:'DISCO酒局 · 派对喝酒游戏', text:'来 DISCO酒局 一起玩！🍻', url};
+  if(navigator.share){
+    try{ await navigator.share(data); return; }
+    catch(e){ if(e && e.name==='AbortError') return; }
   }
-  function updateWd(id){document.getElementById('lbl'+id).textContent=getWd(document.getElementById('date'+id).value);}
-  function calcAll(){var els=document.querySelectorAll('[data-id]');for(var i=0;i<els.length;i++)calc(els[i].getAttribute('data-id'));}
-  function addDay(date){
-    counter++;var id=counter;
-    var card=document.createElement('div');
-    card.className='card';card.setAttribute('data-id',id);
-    card.innerHTML='<div class="day-label"><img src="golf.jpg" alt="⛳">'+(id>1?'<button class="del" onclick="removeDay('+id+')">×</button>':'<span></span>')+'</div>'+
-      '<div class="day-body">'+
-      '<div class="row"><span class="label">开球日期</span><div class="date-wrap"><input type="date" id="date'+id+'" value="'+date+'"><span class="wd" id="lbl'+id+'"></span></div></div>'+
-      '<div class="row"><span class="label">开球时间</span><div class="time-wrap"><select id="h'+id+'">'+hourOpts+'</select><span class="time-sep">:</span><select id="m'+id+'">'+minOpts+'</select></div></div>'+
-      '<div class="results"><div class="rbox rbox-gold"><div class="lab">出发时间</div><div class="val" id="d'+id+'">--:--</div></div>'+
-      '<div class="rbox rbox-blue"><div class="lab">到达球场时间</div><div class="val" id="a'+id+'">--:--</div></div></div></div>';
-    document.getElementById('dayList').appendChild(card);
-    ['date','h','m'].forEach(function(p){
-      var el=document.getElementById(p+id);
-      el.addEventListener('change',function(){updateWd(id);calc(id);});
-      el.addEventListener('input',function(){updateWd(id);calc(id);});
-    });
-    updateWd(id);calc(id);
+  try{
+    await navigator.clipboard.writeText(url);
+    showShareTip('链接已复制 ✅ 粘贴发给好友，或点微信右上角 ··· 转发');
+  }catch(e){
+    showShareTip('在微信里点右上角 ··· 转发给好友 / 分享到朋友圈');
   }
-  window.removeDay=function(id){var c=document.querySelector('[data-id="'+id+'"]');if(c)c.remove();};
-  document.getElementById('settingsToggle').addEventListener('click',function(){this.classList.toggle('open');document.getElementById('settingsBody').classList.toggle('open');});
-  document.getElementById('travelMin').addEventListener('input',calcAll);
-  document.getElementById('earlyMin').addEventListener('input',calcAll);
-  document.getElementById('addBtn').addEventListener('click',function(){
-    var last=document.querySelector('#dayList .card:last-child');
-    var base=nextSat();
-    if(last){var lid=last.getAttribute('data-id');var lv=document.getElementById('date'+lid).value;if(lv){base=new Date(lv+'T00:00:00');base.setDate(base.getDate()+1);}}
-    addDay(fmtDate(base));
+}
+
+function showResult(who, opts){
+  opts = opts||{};
+  const pen = opts.noPenalty ? null : rollPenalty();
+  $('resEmoji').textContent = opts.emoji || (pen && pen.cups===0 ? '🍀' : '🍺');
+  $('resWho').textContent = who;
+  $('resPenalty').textContent = opts.penaltyText || (pen ? pen.t : '');
+  $('resSub').textContent = opts.sub || '';
+  if(pen && pen.cups>0 || opts.forceCup){
+    const p = players.find(p=>p.name===who);
+    if(p) p.cups++;
+    saveState();
+  }
+  $('overlay').classList.add('show');
+  $('resultBox').classList.add('strobe');
+  setTimeout(()=>$('resultBox').classList.remove('strobe'),1000);
+  vib([80,40,120]);
+}
+function closeResult(){ $('overlay').classList.remove('show'); }
+
+/* ================== 玩家管理 ================== */
+const QUICK = ['老王','Disco大叔','二哥','小李','阿强','Lulu','胖哥','妹妹'];
+function renderQuick(){
+  $('quickNames').innerHTML = '快速添加：' + QUICK.map(n=>`<span onclick="quickAdd('${n}')">${n}</span>`).join('');
+}
+function quickAdd(n){ $('nameInput').value = n; addPlayer(); }
+function addPlayer(){
+  const v = $('nameInput').value.trim();
+  if(!v) return;
+  if(players.length>=12){ alert('最多12人，再多桌子坐不下了'); return; }
+  if(players.some(p=>p.name===v)){ alert('名字重复了，加个序号吧'); return; }
+  players.push({name:v, cups:0});
+  $('nameInput').value='';
+  saveState();
+  renderChips();
+}
+function removePlayer(i){ players.splice(i,1); saveState(); renderChips(); }
+function renderChips(){
+  $('chips').innerHTML = players.length
+    ? players.map((p,i)=>`<span class="chip"><i>${p.name}</i><span class="x" onclick="removePlayer(${i})">×</span></span>`).join('')
+    : '<span class="hint">还没有玩家，先把人都拉进来</span>';
+}
+$('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') addPlayer(); });
+
+function goModes(){
+  if(players.length<2){ alert('至少需要2名玩家！独酌请另寻雅兴 🥃'); return; }
+  show('scr-modes');
+}
+
+/* ================== 命运唱盘 ================== */
+let wheelAngle = 0, spinning = false;
+function goSpin(){ buildWheel(); show('scr-spin'); }
+function buildWheel(){
+  const v = $('vinyl');
+  v.querySelectorAll('.seg-name').forEach(e=>e.remove());
+  const n = players.length, seg = 360/n;
+  const stops = players.map((p,i)=>`${SEG_COLORS[i%SEG_COLORS.length]} ${i*seg}deg ${(i+1)*seg}deg`).join(',');
+  v.style.background = `conic-gradient(from 0deg, ${stops})`;
+  players.forEach((p,i)=>{
+    const el = document.createElement('div');
+    el.className = 'seg-name';
+    el.textContent = p.name;
+    const a = i*seg + seg/2;
+    el.style.transform = `rotate(${a}deg) translate(-50%,-118px) rotate(0deg)`;
+    el.style.transformOrigin = '0 0';
+    el.style.left='50%'; el.style.top='50%';
+    v.appendChild(el);
   });
-  addDay(fmtDate(nextSat()));
-})();
+  wheelAngle = 0;
+  v.style.transition='none';
+  v.style.transform='rotate(0deg)';
+}
+function spinDeck(){
+  if(spinning) return;
+  spinning = true;
+  $('spinBtn').disabled = true;
+  $('spinStatus').textContent = '🎶 Beat dropping... 唱针狂飙中';
+  const v = $('vinyl');
+  const extra = 1800 + Math.random()*1440; // 5~9圈
+  wheelAngle += extra;
+  v.style.transition = 'transform 4.2s cubic-bezier(.12,.8,.16,1)';
+  requestAnimationFrame(()=>{ v.style.transform = `rotate(${wheelAngle}deg)`; });
+  vib(60);
+  setTimeout(()=>{
+    const n = players.length, seg = 360/n;
+    const a = ((360 - (wheelAngle % 360)) % 360);
+    const idx = Math.floor(a/seg) % n;
+    const who = players[idx].name;
+    $('spinStatus').textContent = `唱针落在了 ${who} 的频段上`;
+    showResult(who, {sub:'命运唱盘已宣判，不服再转一轮'});
+    spinning=false; $('spinBtn').disabled=false;
+  }, 4400);
+}
+
+/* ================== 数字炸弹 ================== */
+let bomb=0, bLow=1, bHigh=100, bTurn=0;
+function goBomb(){ startBomb(); show('scr-bomb'); }
+function startBomb(){
+  bLow=1; bHigh=100;
+  bomb = bLow + Math.floor(Math.random()*(bHigh-bLow+1));
+  bTurn = Math.floor(Math.random()*players.length);
+  $('bombLog').textContent='炸弹已埋好，区间内随便报，踩中就喝 💥';
+  renderBomb();
+}
+function renderBomb(){
+  $('bombRange').textContent = `${bLow} — ${bHigh}`;
+  $('bombWho').textContent = players[bTurn].name;
+  $('bombGuess').value='';
+}
+function guessBomb(){
+  const g = parseInt($('bombGuess').value,10);
+  if(isNaN(g) || g<bLow || g>bHigh){ $('bombLog').textContent=`要报 ${bLow}–${bHigh} 之间的数哦`; return; }
+  const who = players[bTurn].name;
+  if(g===bomb){
+    $('bombLog').textContent = `💥 BOOM！炸弹就是 ${bomb}`;
+    showResult(who,{emoji:'💥',sub:`炸弹数字：${bomb}。喝完点「重新埋雷」开下一轮`});
+    return;
+  }
+  if(g<bomb) bLow=g+1; else bHigh=g-1;
+  bTurn = (bTurn+1)%players.length;
+  $('bombLog').textContent = `${who} 报 ${g}，安全！区间收缩…`;
+  vib(30);
+  renderBomb();
+}
+
+/* ================== 真心话大冒险 ================== */
+let todQueue=[], todCur=null;
+function goTod(){ nextTod(); show('scr-tod'); }
+function nextTod(){
+  if(todQueue.length===0){
+    todQueue = players.map(p=>p.name).sort(()=>Math.random()-.5);
+  }
+  todCur = todQueue.pop();
+  $('todWho').textContent = todCur;
+  $('todTag').style.display='none';
+  $('todCard').textContent = '选「真心话」还是「大冒险」？不敢的直接认罚 🍺';
+}
+function drawTod(kind){
+  const tag = $('todTag');
+  tag.style.display='inline-block';
+  tag.className = 'tod-tag ' + kind;
+  tag.textContent = kind==='truth' ? '💬 真心话' : '🔥 大冒险';
+  $('todCard').textContent = kind==='truth' ? pick(TRUTHS) : pick(DARES);
+  vib(40);
+}
+function todDone(){
+  $('todCard').textContent = `👏 ${todCur} 顺利过关！手机传给下一位`;
+  setTimeout(nextTod, 900);
+}
+function todChicken(){
+  showResult(todCur,{emoji:'🐔',sub:'怂有怂的代价，喝完传给下一位'});
+  setTimeout(nextTod, 600);
+}
+
+/* ================== 骰子对决 ================== */
+let diceVals=[], diceTurn=0, diceDone=false;
+function goDice(){ startDice(); show('scr-dice'); }
+function startDice(){
+  diceVals = players.map(()=>null);
+  diceTurn = 0; diceDone=false;
+  $('diceBtn').disabled=false;
+  renderDice();
+}
+const DIE_FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+function renderDice(){
+  $('diceGrid').innerHTML = players.map((p,i)=>{
+    const v = diceVals[i];
+    const cls = (i===diceTurn && !diceDone ? ' cur':'') + (diceDone && v===Math.min(...diceVals) ? ' lose':'');
+    return `<div class="die-slot${cls}"><div class="nm">${p.name}</div><div class="val">${v?DIE_FACES[v-1]+' '+v:'—'}</div></div>`;
+  }).join('');
+  if(!diceDone) $('diceBtn').textContent = `🎲 ${players[diceTurn].name} 掷骰子`;
+}
+function rollDice(){
+  if(diceDone) return;
+  const btn = $('diceBtn');
+  btn.disabled = true;
+  let count=0;
+  const anim = setInterval(()=>{
+    diceVals[diceTurn] = 1+Math.floor(Math.random()*6);
+    renderDice();
+    if(++count>=8){
+      clearInterval(anim);
+      vib(50);
+      diceTurn++;
+      if(diceTurn>=players.length){
+        diceDone=true;
+        const min = Math.min(...diceVals);
+        const losers = players.filter((p,i)=>diceVals[i]===min).map(p=>p.name);
+        renderDice();
+        $('diceBtn').textContent='🎲 本轮结束';
+        setTimeout(()=>{
+          if(losers.length===1){
+            showResult(losers[0],{sub:`掷出最小点数 ${min}，技不如人甘拜下风`});
+          } else {
+            losers.forEach(n=>{ const p=players.find(p=>p.name===n); if(p)p.cups++; });
+            saveState();
+            $('resEmoji').textContent='🍻';
+            $('resWho').textContent=losers.join('、');
+            $('resPenalty').textContent=`并列最小点 ${min}，一起喝！`;
+            $('resSub').textContent='点「新一轮」继续对决';
+            $('overlay').classList.add('show');
+            vib([80,40,120]);
+          }
+        },400);
+      } else {
+        btn.disabled=false;
+        renderDice();
+      }
+    }
+  },70);
+}
+
+/* ================== 战绩榜 ================== */
+function showBoard(){
+  const sorted=[...players].sort((a,b)=>b.cups-a.cups);
+  $('boardList').innerHTML = sorted.length
+    ? sorted.map((p,i)=>`<div class="board-row"><span class="rank${i<3?' top':''}">${i+1}</span><span class="nm">${p.name}${i===0&&p.cups>0?' 👑':''}</span><span class="cups">${p.cups} 杯</span></div>`).join('')
+    : '<p class="hint">还没人喝酒，今晚的故事才刚开始…</p>';
+  show('scr-board');
+}
+function clearBoard(){
+  if(!players.length){ alert('还没有玩家'); return; }
+  if(!confirm('确定清空所有人的喝酒杯数？（玩家保留）')) return;
+  players.forEach(p=>p.cups=0);
+  saveState();
+  showBoard();
+}
+
+loadState();
+renderQuick();
+renderChips();
+
+// 开屏动画结束后彻底移除，防止遮挡
+setTimeout(()=>{ const s=$('splash'); if(s) s.remove(); }, 3200);
 </script>
 </body>
 </html>
